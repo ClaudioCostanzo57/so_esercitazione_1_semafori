@@ -15,7 +15,8 @@ int main()
     buffer *buf2;
     int sem_id;
 
-    buf1_id = /* TBD: Acquisizione shared memory buffer singolo */
+    key_t shm_key=ftok(".",'a');
+    buf1_id =shmget(shm_key,sizeof(buffer),0664); /* TBD: Acquisizione shared memory buffer singolo */
 
     if (buf1_id < 0)
     {
@@ -23,7 +24,8 @@ int main()
         exit(1);
     }
 
-    buf2_id = /* TBD: Acquisizione shared memory buffer singolo */
+    key_t shm2_key=ftok(".",'b');
+    buf2_id =shmget(shm2_key,sizeof(buffer),0664); /* TBD: Acquisizione shared memory buffer singolo */
 
     if (buf2_id < 0)
     {
@@ -31,7 +33,8 @@ int main()
         exit(1);
     }
 
-    sem_id = /* TBD: Acquisizione vettore semafori */
+    key_t sem_key=ftok(".",'c');
+    sem_id =semget(sem_key,2,0664); /* TBD: Acquisizione vettore semafori */
 
     if (sem_id < 0)
     {
@@ -39,7 +42,7 @@ int main()
         exit(1);
     }
 
-    buf1 = /* TBD: Attach shared memory */
+    buf1 =shmat(buf1_id,NULL,0); /* TBD: Attach shared memory */
 
     if (buf1 == (void *)-1)
     {
@@ -47,7 +50,7 @@ int main()
         exit(1);
     }
 
-    buf2 = /* TBD: Attach shared memory */
+    buf2 =shmat(buf2_id,NULL,0); /* TBD: Attach shared memory */
 
     if (buf2 == (void *)-1)
     {

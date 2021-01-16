@@ -14,5 +14,6 @@ void padre(int *buffer,
 
 #define NUM_PROCESSI 10
 #define NUM_ELEMENTI 10000
+#define MUTEX 0
 
 #endif /* _PROCESSI_H_ */

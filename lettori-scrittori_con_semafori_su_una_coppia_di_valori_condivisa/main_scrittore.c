@@ -11,16 +11,16 @@ int main()
 
 
 
-    key_t chiave_shm = /* TBD: Definire una chiave */
+    key_t chiave_shm =ftok(".",'a'); /* TBD: Definire una chiave */
 
-    int shm_id = /* TBD: Acquisire la memoria condivisa (allocata dal padre) */
+    int shm_id =shmget(chiave_shm,sizeof(buffer),0664); /* TBD: Acquisire la memoria condivisa (allocata dal padre) */
 
     if(shm_id < 0) {
         perror("Errore creazione shared memory");
         exit(1);
     }
 
-    buffer * b = /* TBD: Ottenere un puntatore alla memoria condivisa */
+    buffer * b =shmat(shm_id,NULL,0);/* TBD: Ottenere un puntatore alla memoria condivisa */
 
     if(b == (void*)-1) {
         perror("Errore attach shared memory");
@@ -28,9 +28,9 @@ int main()
     }
 
 
-    key_t sem_chiave = /* TBD: Definire una chiave */
+    key_t sem_chiave =ftok(".",'b'); /* TBD: Definire una chiave */
 
-    int sem_id = /* TBD: Acquisire il vettore di semafori (allocato dal padre) */
+    int sem_id =semget(sem_chiave,2,0664); /* TBD: Acquisire il vettore di semafori (allocato dal padre) */
 
     if (sem_id < 0)
     {

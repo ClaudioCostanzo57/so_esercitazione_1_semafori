@@ -8,9 +8,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+
 int inizializza_semafori()
 {
-    int sem_id = /* TBD: usare semget() per allocare un vettore,
+    key_t sem_key=IPC_PRIVATE;
+    int sem_id =semget(sem_key,1,IPC_CREAT|0664); /* TBD: usare semget() per allocare un vettore,
                   *      con un singolo semaforo "mutex" */
 
     if (sem_id < 0)
@@ -22,6 +25,7 @@ int inizializza_semafori()
     /* Valore iniziale: 1 (mutua esclusione) */
 
     /* TBD: inizializzare il mutex */
+    semctl(sem_id,MUTEX,SETVAL,1);
 
     return sem_id;
 }
@@ -49,6 +53,7 @@ void figlio(int *vettore,
         }
     }
 
+    Wait_Sem(sem_id,MUTEX);
     printf("Figlio: Il minimo locale è %d\n", minimo);
 
     if (minimo < *buffer)
@@ -56,6 +61,7 @@ void figlio(int *vettore,
 
         *buffer = minimo;
     }
+    Signal_Sem(sem_id,MUTEX);
 }
 
 
@@ -67,6 +73,9 @@ void padre(int *buffer,
 
     /* TBD: Utilizzare wait() per attendere la terminazione dei 10 figli */
 
+    for(int i=0;i<10;i++){
+        wait(NULL);
+    }
     
 
     /* Risultato finale */

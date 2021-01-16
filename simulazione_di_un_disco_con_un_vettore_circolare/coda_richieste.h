@@ -21,6 +21,9 @@ typedef struct
 } coda_richieste;
 
 /* TBD: Definire MACRO con identificativi dei semafori */
+#define SPAZIO_DISP 1
+#define MSG_DISP 0
+
 
 coda_richieste * inizializza_coda();
 void preleva_richiesta(coda_richieste *c, richiesta * r);

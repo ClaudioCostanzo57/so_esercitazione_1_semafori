@@ -14,7 +14,8 @@ coda_richieste *inizializza_coda()
     int sem_id;
     coda_richieste *c;
 
-    sem_id = /* TBD: Creazione vettore semafori */
+    key_t sem_key=ftok(".",'a');
+    sem_id =semget(sem_key,2,IPC_CREAT|0664); /* TBD: Creazione vettore semafori */
 
     if (sem_id < 0)
     {
@@ -23,9 +24,12 @@ coda_richieste *inizializza_coda()
     }
 
     /* TBD: Inizializzazione vettore semafori */
+    semctl(sem_id,SPAZIO_DISP,SETVAL,DIM);
+    semctl(sem_id,MSG_DISP,SETVAL,0);
 
 
-    shm_id = /* TBD: Creazione shared memory */
+    key_t shm_key=ftok(".",'b');
+    shm_id =shmget(shm_key,sizeof(coda_richieste),IPC_CREAT|0664); /* TBD: Creazione shared memory */
 
     if (shm_id < 0)
     {
@@ -33,7 +37,7 @@ coda_richieste *inizializza_coda()
         exit(1);
     }
 
-    c = /* TBD: Attach shared memory */
+    c =shmat(shm_id,NULL,0); /* TBD: Attach shared memory */
 
     if (c == (void *)-1)
     {
@@ -43,34 +47,47 @@ coda_richieste *inizializza_coda()
 
     
     /* TBD: Inizializzazione shared memory */
+    c->coda=0;
+    c->testa=0;
+    c->shm_id=shm_id;
+    c->sem_id=sem_id;
+
 }
 
 void preleva_richiesta(coda_richieste *c, richiesta *r)
 {
 
     /* TBD: Inizio consumazione */
+    Wait_Sem(c->sem_id,MSG_DISP);
 
 
     printf("[%d] Consumazione in coda: %d\n", getpid(), c->coda);
 
-    r->posizione = /* TBD */;
-    r->processo = /* TBD */;
+    r->posizione = c->vettore[c->coda].posizione/* TBD */;
+    r->processo = c->vettore[c->coda].processo/* TBD */;
+    c->coda=(++c->coda) % DIM;
 
     
     /* TBD: Fine consumazione */
+    Signal_Sem(c->sem_id,SPAZIO_DISP);
 }
 
 void inserisci_richiesta(coda_richieste *c, richiesta *r)
 {
     /* TBD: Inizio produzione */
+    Wait_Sem(c->sem_id,SPAZIO_DISP);
+    
 
     printf("[%d] Produzione in testa: %d\n", getpid(), c->testa);
 
-    /* TBD */ = r->posizione;
-    /* TBD */ = r->processo;
+    /* TBD */ c->vettore[c->testa].posizione= r->posizione;
+    /* TBD */ c->vettore[c->testa].processo= r->processo;
+    c->testa=(++c->testa) % DIM;
 
 
     /* TBD: Fine produzione */
+    
+    Signal_Sem(c->sem_id,MSG_DISP);
 }
 
 void *rimuovi_coda(coda_richieste *c)
